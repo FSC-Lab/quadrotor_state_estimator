@@ -1,3 +1,28 @@
+/*
+
+MIT License
+
+Copyright (c) 2024 FSC Lab
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
 #include <map>
 #include <string>
 
@@ -37,14 +62,14 @@ public:
         set_home_server_ = nh.advertiseService(uav_prefix + "/state_estimator/override_set_home", &SetHomeNode::setHomeCallback, this);
 
         // subscribe to the current position in mavros gps
-        subs_["translational_state_source"] = nh.subscribe(uav_prefix +"/mavros/local_position/pose", 1, &SetHomeNode::currentPositionCallback, this);
+        subs_["translational_state_source"] = nh.subscribe(uav_prefix + "/mavros/local_position/pose", 1, &SetHomeNode::currentPositionCallback, this);
         subs_["velocity_source"] = nh.subscribe(uav_prefix + "/mavros/local_position/velocity_local", 1, &SetHomeNode::velocityCallback, this);
         subs_["rotational_state_source"] = nh.subscribe(uav_prefix + "/mavros/imu/data", 1, &SetHomeNode::attitudeCallback, this);
 
         // advertise the difference between the home position and the current position
         diff_position_pub_ = nh.advertise<nav_msgs::Odometry>(uav_prefix + "/state_estimator/local_position/odom_adjusted", 1);
 
-        ROS_INFO("Set Home Node Initialized"); 
+        ROS_INFO("Set Home Node Initialized");
 
         ros::Rate rate(60);
 
@@ -85,16 +110,18 @@ private:
         current_odom_.pose.pose.position = msg->pose.position;
     }
 
-    void velocityCallback(const geometry_msgs::TwistStamped::ConstPtr &msg) {
+    void velocityCallback(const geometry_msgs::TwistStamped::ConstPtr &msg)
+    {
         current_odom_.header = msg->header;
         current_odom_.twist.twist.linear = msg->twist.linear;
     }
 
-    void attitudeCallback(const sensor_msgs::Imu::ConstPtr &msg) {
+    void attitudeCallback(const sensor_msgs::Imu::ConstPtr &msg)
+    {
 
-      current_odom_.header = msg->header;
-      current_odom_.pose.pose.orientation = msg->orientation;
-      current_odom_.twist.twist.angular = msg->angular_velocity;
+        current_odom_.header = msg->header;
+        current_odom_.pose.pose.orientation = msg->orientation;
+        current_odom_.twist.twist.angular = msg->angular_velocity;
     }
 
     void computeDifference()
