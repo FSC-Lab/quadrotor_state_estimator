@@ -56,10 +56,15 @@ find_package(catkin REQUIRED COMPONENTS
   applanix_msgs
 )
 
+block()
+list(APPEND CMAKE_MODULE_PATH "/usr/share/cmake/geographiclib")
+find_package(GeographicLib REQUIRED)
+endblock()
+
 catkin_package(
 )
 
-include_directories(include ${catkin_INCLUDE_DIRS} /usr/include/GeographicLib)
+include_directories(include ${catkin_INCLUDE_DIRS} ${GeographicLib_INCLUDE_DIRS})
 
 # Library that contains shared functionality
 add_library(state_estimator src/state_estimator.cpp)
@@ -69,14 +74,13 @@ target_compile_features(state_estimator PUBLIC cxx_std_17)
 # Executable for set_home_node
 add_executable(set_home_node src/set_home_node.cpp)
 target_compile_features(set_home_node PRIVATE cxx_std_17)
-target_link_libraries(set_home_node ${catkin_LIBRARIES} /usr/lib/x86_64-linux-gnu/libGeographic.so)
+target_link_libraries(set_home_node ${catkin_LIBRARIES} ${GeographicLib_LIBRARIES})
 
 # Executable for state_estimator_node
 add_executable(state_estimator_node src/state_estimator_node.cpp)
 target_link_libraries(state_estimator_node 
   PUBLIC state_estimator 
   ${catkin_LIBRARIES}
-  /usr/lib/x86_64-linux-gnu /libGeographic.so
 )
 
 add_dependencies(state_estimator_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
